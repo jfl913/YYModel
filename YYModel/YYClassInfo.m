@@ -98,13 +98,13 @@ YYEncodingType YYEncodingGetType(const char *typeEncoding) {
     _ivar = ivar;
     const char *name = ivar_getName(ivar);
     if (name) {
-        _name = [NSString stringWithUTF8String:name];
+        _name = [NSString stringWithUTF8String:name]; // _URL
     }
-    _offset = ivar_getOffset(ivar);
+    _offset = ivar_getOffset(ivar); // 8
     const char *typeEncoding = ivar_getTypeEncoding(ivar);
     if (typeEncoding) {
-        _typeEncoding = [NSString stringWithUTF8String:typeEncoding];
-        _type = YYEncodingGetType(typeEncoding);
+        _typeEncoding = [NSString stringWithUTF8String:typeEncoding]; // @"NSURL"
+        _type = YYEncodingGetType(typeEncoding); // YYEncodingTypeObject
     }
     return self;
 }
@@ -117,31 +117,31 @@ YYEncodingType YYEncodingGetType(const char *typeEncoding) {
     if (!method) return nil;
     self = [super init];
     _method = method;
-    _sel = method_getName(method);
-    _imp = method_getImplementation(method);
+    _sel = method_getName(method); // _sel = "name"
+    _imp = method_getImplementation(method); // _imp = 0x000000010cadbc80 (Test`-[GHIssue name] at GHIssue.h:16)
     const char *name = sel_getName(_sel);
     if (name) {
-        _name = [NSString stringWithUTF8String:name];
+        _name = [NSString stringWithUTF8String:name]; // name
     }
-    const char *typeEncoding = method_getTypeEncoding(method);
+    const char *typeEncoding = method_getTypeEncoding(method); // (const char *) typeEncoding = 0x00000001071beec5 "@16@0:8"
     if (typeEncoding) {
-        _typeEncoding = [NSString stringWithUTF8String:typeEncoding];
+        _typeEncoding = [NSString stringWithUTF8String:typeEncoding]; // @16@0:8
     }
-    char *returnType = method_copyReturnType(method);
+    char *returnType = method_copyReturnType(method); // (char *) returnType = 0x0000608000013c70 "@"
     if (returnType) {
-        _returnTypeEncoding = [NSString stringWithUTF8String:returnType];
+        _returnTypeEncoding = [NSString stringWithUTF8String:returnType]; // @
         free(returnType);
     }
-    unsigned int argumentCount = method_getNumberOfArguments(method);
+    unsigned int argumentCount = method_getNumberOfArguments(method); // 2
     if (argumentCount > 0) {
         NSMutableArray *argumentTypes = [NSMutableArray new];
         for (unsigned int i = 0; i < argumentCount; i++) {
-            char *argumentType = method_copyArgumentType(method, i);
-            NSString *type = argumentType ? [NSString stringWithUTF8String:argumentType] : nil;
+            char *argumentType = method_copyArgumentType(method, i); // (char *) argumentType = 0x0000608000013c70 "@"
+            NSString *type = argumentType ? [NSString stringWithUTF8String:argumentType] : nil; // @
             [argumentTypes addObject:type ? type : @""];
             if (argumentType) free(argumentType);
         }
-        _argumentTypeEncodings = argumentTypes;
+        _argumentTypeEncodings = argumentTypes; // <__NSArrayM 0x618000046c00>(@,:)
     }
     return self;
 }
@@ -154,9 +154,9 @@ YYEncodingType YYEncodingGetType(const char *typeEncoding) {
     if (!property) return nil;
     self = [super init];
     _property = property;
-    const char *name = property_getName(property);
+    const char *name = property_getName(property); // (const char *) name = 0x0000000103e671ce "URL"
     if (name) {
-        _name = [NSString stringWithUTF8String:name];
+        _name = [NSString stringWithUTF8String:name]; // URL
     }
     
     YYEncodingType type = 0;
@@ -165,17 +165,17 @@ YYEncodingType YYEncodingGetType(const char *typeEncoding) {
     for (unsigned int i = 0; i < attrCount; i++) {
         switch (attrs[i].name[0]) {
             case 'T': { // Type encoding
-                if (attrs[i].value) {
-                    _typeEncoding = [NSString stringWithUTF8String:attrs[i].value];
-                    type = YYEncodingGetType(attrs[i].value);
+                if (attrs[i].value) { // "@\"NSURL\""
+                    _typeEncoding = [NSString stringWithUTF8String:attrs[i].value]; // @"NSURL"
+                    type = YYEncodingGetType(attrs[i].value); // (YYEncodingType) type = YYEncodingTypeObject
                     
                     if ((type & YYEncodingTypeMask) == YYEncodingTypeObject && _typeEncoding.length) {
                         NSScanner *scanner = [NSScanner scannerWithString:_typeEncoding];
                         if (![scanner scanString:@"@\"" intoString:NULL]) continue;
                         
-                        NSString *clsName = nil;
+                        NSString *clsName = nil; // NSURL
                         if ([scanner scanUpToCharactersFromSet: [NSCharacterSet characterSetWithCharactersInString:@"\"<"] intoString:&clsName]) {
-                            if (clsName.length) _cls = objc_getClass(clsName.UTF8String);
+                            if (clsName.length) _cls = objc_getClass(clsName.UTF8String); // NSURL
                         }
                         
                         NSMutableArray *protocols = nil;
@@ -236,12 +236,12 @@ YYEncodingType YYEncodingGetType(const char *typeEncoding) {
         attrs = NULL;
     }
     
-    _type = type;
+    _type = type; // (YYEncodingType) _type = 655374
     if (_name.length) {
         if (!_getter) {
-            _getter = NSSelectorFromString(_name);
+            _getter = NSSelectorFromString(_name); // (SEL) _getter = "URL"
         }
-        if (!_setter) {
+        if (!_setter) { // (SEL) _setter = "setURL:"
             _setter = NSSelectorFromString([NSString stringWithFormat:@"set%@%@:", [_name substringToIndex:1].uppercaseString, [_name substringFromIndex:1]]);
         }
     }
@@ -257,13 +257,13 @@ YYEncodingType YYEncodingGetType(const char *typeEncoding) {
 - (instancetype)initWithClass:(Class)cls {
     if (!cls) return nil;
     self = [super init];
-    _cls = cls;
-    _superCls = class_getSuperclass(cls);
-    _isMeta = class_isMetaClass(cls);
+    _cls = cls; // GHIssue
+    _superCls = class_getSuperclass(cls); // NSObject
+    _isMeta = class_isMetaClass(cls); // NO
     if (!_isMeta) {
-        _metaCls = objc_getMetaClass(class_getName(cls));
+        _metaCls = objc_getMetaClass(class_getName(cls));    // GHIssue
     }
-    _name = NSStringFromClass(cls);
+    _name = NSStringFromClass(cls); // GHIssue
     [self _update];
 
     _superClassInfo = [self.class classInfoWithClass:_superCls];

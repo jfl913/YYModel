@@ -499,6 +499,7 @@ static force_inline id YYValueForMultiKeys(__unsafe_unretained NSDictionary *dic
     }
     
     // Get container property's generic class
+    // 得到容器类属性中的类，看GitHub文档
     NSDictionary *genericMapper = nil;
     if ([cls respondsToSelector:@selector(modelContainerPropertyGenericClass)]) {
         genericMapper = [(id<YYModel>)cls modelContainerPropertyGenericClass];
@@ -773,6 +774,7 @@ static force_inline void ModelSetNumberToProperty(__unsafe_unretained id model,
 }
 
 /**
+ 真正的字典转Model过程发生在这里
  Set value to model with a property meta.
  
  @discussion Caller should hold strong reference to the parameters before this function returns.
@@ -1432,6 +1434,12 @@ static NSString *ModelDescription(NSObject *model) {
 
 @implementation NSObject (YYModel)
 
+/**
+ 将json转为字典
+
+ @param json
+ @return 字典
+ */
 + (NSDictionary *)_yy_dictionaryWithJSON:(id)json {
     if (!json || json == (id)kCFNull) return nil;
     NSDictionary *dic = nil;
@@ -1475,6 +1483,13 @@ static NSString *ModelDescription(NSObject *model) {
     return [self yy_modelSetWithDictionary:dic];
 }
 
+
+/**
+ 字典转为model
+
+ @param dic 字典
+ @return 是否转换成功
+ */
 - (BOOL)yy_modelSetWithDictionary:(NSDictionary *)dic {
     if (!dic || dic == (id)kCFNull) return NO;
     if (![dic isKindOfClass:[NSDictionary class]]) return NO;

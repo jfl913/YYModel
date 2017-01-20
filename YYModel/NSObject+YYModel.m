@@ -1754,6 +1754,8 @@ static NSString *ModelDescription(NSObject *model) {
     NSUInteger count = 0;
     for (_YYModelPropertyMeta *propertyMeta in modelMeta->_allPropertyMetas) {
         if (!propertyMeta->_isKVCCompatible) continue;
+        // http://nshipster.cn/equality/
+        // 在实现一个 hash 函数的时候, 对于关键属性的散列值进行一个简单的 XOR操作，就能够满足在 99% 的情况下的需求了。
         value ^= [[self valueForKey:NSStringFromSelector(propertyMeta->_getter)] hash];
         count++;
     }

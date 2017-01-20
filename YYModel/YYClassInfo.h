@@ -16,7 +16,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Type encoding's type.
+ 
+ @discussion See also:
+ https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html
  */
+
 typedef NS_OPTIONS(NSUInteger, YYEncodingType) {
     YYEncodingTypeMask       = 0xFF, ///< mask of type value
     YYEncodingTypeUnknown    = 0, ///< unknown

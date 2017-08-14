@@ -170,6 +170,7 @@ YYEncodingType YYEncodingGetType(const char *typeEncoding) {
                     type = YYEncodingGetType(attrs[i].value); // (YYEncodingType) type = YYEncodingTypeObject
                     
                     if ((type & YYEncodingTypeMask) == YYEncodingTypeObject && _typeEncoding.length) {
+                        // TODO: 查下这个的作用
                         NSScanner *scanner = [NSScanner scannerWithString:_typeEncoding];
                         if (![scanner scanString:@"@\"" intoString:NULL]) continue;
                         
